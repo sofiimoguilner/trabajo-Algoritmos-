@@ -13,32 +13,34 @@ struct Cliente {
     double saldo;
 };
 
-struct Transaccion {
-	string monto;
+struct Transaccion{
+	double monto;
 	string fecha;
 	string id;
-	string tipo;//egreso o ingreso
+	string tipo; //Ingreso o egreso
 	Cliente datosCliente;
 };
 
-bool iniciarSesion(Cliente &clientes);
+void agregarTransaccion(Cliente &cliente); //Esta funcion esta en generador.cpp
 
-bool existeCliente(Cliente &clientes, string &dni, string &username){
+bool existeCliente(Cliente &clientes, const string &dni, const string &username){
 	FILE* archivo = fopen("Clientes.txt", "rb");
-	if(archivo !=NULL){
+	if(archivo != NULL){
 		while(fread(&clientes, sizeof(Cliente), 1, archivo)==1){
-			if(clientes.dni== dni || clientes.username== username){
+			if(clientes.dni == dni || clientes.username == username){
 				return true;
 			}	
 		}
+		fclose(archivo);
 	}
 	return false;
 }
 
 void registrarCliente(Cliente &clientes) {
+	
 	string nombre, username, clave, dni;
 	
-    cout << "Ingrese nombre: ";
+    cout << endl << "Ingrese nombre: ";
     cin >> nombre;
 
     cout << "Ingrese DNI: ";
@@ -51,32 +53,58 @@ void registrarCliente(Cliente &clientes) {
 	cin>> clave;
 	
 	if(existeCliente(clientes, dni, username)){
-		cout<<"Error: Ya existe un cliente con ese DNI o username.\n";
+		cout << endl << "Error: Ya existe un cliente con ese DNI o username.\n" << endl;
 	}
 	else{
-		clientes.nombre= nombre;
-		clientes.dni= dni;
-		clientes.username= username;
-		clientes.clave= clave;
-		clientes.saldo= 10000.0;
+		clientes.nombre = nombre;
+		clientes.dni = dni;
+		clientes.username = username;
+		clientes.clave = clave;
+		clientes.saldo = 10000.0;
 		
-		FILE* archivo = fopen("Clientes.txt", "a");
+		FILE* archivo = fopen("Clientes.txt", "ab");
 		if (archivo != NULL) {
 			fwrite(&clientes, sizeof(Cliente), 1, archivo);
       	 	fclose(archivo);
-       		cout << "Registro exitoso. Saldo inicial asignado: $10.000.\n" << endl;
+       		cout << endl << "Registro exitoso. Saldo inicial asignado: $10.000.\n" << endl;
+		} else{
+			cout << endl << "Error al abrir el archivo." << endl;
 		}
 	}
 }
 
-//void agregarTransaccion(Transaccion &transaccion);
+bool iniciarSesion(Cliente &clientes){
+	
+	string username, clave;
+	
+	cout << endl << "Ingrese USERNAME: ";
+	cin>>username;
+	
+	cout<<"Ingrese CLAVE: ";
+	cin>>clave;
+	
+	FILE* archivo = fopen("Clientes.txt", "rb");
+	if (archivo != NULL){
+		while(fread(&clientes, sizeof(Cliente), 1, archivo) == 1){
+			if (clientes.username == username && clientes.clave == clave){
+				fclose(archivo);
+				return true;
+			}
+		}
+		fclose(archivo);
+	}
+	
+	return false;
+	
+}
+
 
 int main() {
     int opcion, opcionCliente;
     Cliente clientes;
-    Transaccion transaccion;
     do {
-        cout << "\n1. Registrar nuevo cliente\n2. Iniciar sesion\n3. Salir\nSeleccione una opcion: ";
+    	cout<<"- - - BIENVENIDO AL SISTEMA BANCARIO - - -" << endl;
+        cout << "\n1. Registrar nuevo cliente\n2. Iniciar sesion\n3. Salir\n\nSeleccione una opcion: ";
         cin >> opcion;
 		
         switch (opcion) {
@@ -87,18 +115,18 @@ int main() {
             	if(iniciarSesion(clientes)){
             		cout<< "\nBienvenido/a "<< clientes.nombre << "\nSu saldo es de: $"<<clientes.saldo;
             		do{
-            			cout << "\n\n1. Agregar transaccion de ingreso o egreso de dinero\n2. Eliminar transaccion\n3. Salir\nSleccione una opcion:";
+            			cout << "\n\n1. Agregar transaccion de ingreso o egreso de dinero\n2. Eliminar transaccion\n3. Salir\n\nSeleccione una opcion: ";
 						cin >> opcionCliente;
 						
 						switch (opcionCliente){
 							case 1:
-								//agregarTransaccion(transaccion);
+								//agregarTransaccion(clientes);
 								break;
 							case 2:
 								cout << "a";
 								break;
 							case 3:
-								cout << "Saliendo..." << endl;
+								cout << endl << "Saliendo..." << endl << endl;
 								break;
 							default:
 								cout << "Opcion no valida." << endl;
@@ -106,14 +134,16 @@ int main() {
 						}
 					}while(opcionCliente !=3);
 				}else{
-					cout<< "Error: datos incorrectos.";
+					cout << endl << "Error: datos incorrectos." << endl << endl;
 				}
                 break;
             case 3:
-            	cout<< "Saliendo del sistema..." << endl;
+            	cout << endl << "========================";
+            	cout << endl << "Saliendo del sistema..." << endl;
+            	cout << "========================";
             	break;
             default:
-                cout << "Opcion no valida." << endl;
+                cout << endl <<"Opcion no valida." << endl << endl;
                 break;
         }
     } while (opcion != 3);
