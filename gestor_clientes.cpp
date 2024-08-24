@@ -33,6 +33,7 @@ void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string us
 
 // Analista de Transacciones
 void listarTransacciones(Transaccion &transaccion, string username);
+void EliminarTransaccion(Tansaccion &transaccion, string username, string clave);
 
 void registrarCliente(Cliente &cliente) {
     string nombre, username, clave, dni;
@@ -91,7 +92,8 @@ int main(){
 		cout << "\n1. Registrar nuevo cliente\n";
 		cout << "2. Realizar transaccion (Cliente)\n";
 		cout << "3. Listar transacciones de un cliente\n";
-		cout << "4. Salir\n";
+		cout << "4. Eliminar transaccion\n";
+		cout << "5. Salir\n";
 		cout << "Seleccione una opcion: ";
 		cin >> opcion;
 		
@@ -109,7 +111,13 @@ int main(){
 				listarTransacciones(transaccion, username);
 				break;
 			}
-			case 4:
+			case 4: {string username;
+				cout << "Ingrese username: ";
+				cin >> username;
+				cout << "Ingrese clave: ";
+				cin >> clave;
+				EliminarTransaccion(transaccion,username,clave);
+			case 5:
 				cout << endl << "========================";
             	cout << endl << "Saliendo del sistema..." << endl;
             	cout << "========================";
