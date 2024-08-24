@@ -122,3 +122,39 @@ void registrarTransaccion(Transaccion &transaccion, Cliente &cliente, string use
 	}
 }
 
+//Funcion eliminar transaccion
+
+void EliminarTransaccion(Transaccion &transaccion, Cliente &cliente, string username)
+{
+
+	int id;
+    cout<<"Igresar id de la transaccion que desea eliminar: ";
+    cin>>id;
+
+    FILE* archivoTransaccionesLectura = fopen("Transacciones.txt", "rb");
+    FILE* archivoTransaccionesTemp = fopen("TransaccionesTemp.txt", "wb");//archivo temporal
+
+    Transaccion transaccionActual;
+    bool transaccionEliminada = false;
+
+    while (fread(&transaccionActual, sizeof(Transaccion), 1, archivoTransaccionesLectura)) {
+        if (transaccionActual.id != id) {
+            fwrite(&transaccionActual, sizeof(Transaccion), 1, archivoTransaccionesTemp);
+        } else {
+            transaccionEliminada = true;
+        }
+    }
+
+    fclose(archivoTransaccionesLectura);
+    fclose(archivoTransaccionesTemp);
+
+    if (transaccionEliminada) {
+        remove("Transacciones.txt");
+        rename("TransaccionesTemp.txt", "Transacciones.txt");
+        cout << "Transaccion eliminada exitosamente." << endl;
+    } else {
+        remove("TransaccionesTemp.txt");
+        cout << "Transaccion con ID " << id << " no encontrada." << endl;
+    }
+}
+
