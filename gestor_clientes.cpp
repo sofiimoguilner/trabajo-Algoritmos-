@@ -33,7 +33,7 @@ void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string us
 
 // Analista de Transacciones
 void listarTransacciones(Transaccion &transaccion, string username);
-void EliminarTransaccion(Tansaccion &transaccion, string username, string clave);
+void EliminarTransaccion(Tansaccion &transaccion, string username);
 
 void registrarCliente(Cliente &cliente) {
     string nombre, username, clave, dni;
@@ -116,7 +116,7 @@ int main(){
 				cin >> username;
 				cout << "Ingrese clave: ";
 				cin >> clave;
-				EliminarTransaccion(transaccion,username,clave);
+				EliminarTransaccion(transaccion,username);
 			case 5:
 				cout << endl << "========================";
             	cout << endl << "Saliendo del sistema..." << endl;
