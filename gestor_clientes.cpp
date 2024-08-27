@@ -28,16 +28,18 @@ bool existeCliente(Cliente &cliente, string dni, string username);
 
 // Generador Transacciones
 void realizarTransaccion(Transaccion &transaccion, Cliente &cliente);
-Cliente buscarCliente(Cliente &cliente, string username, string clave);
+bool buscarCliente(Cliente &cliente, string username, string clave);
 void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string username, int monto, string tipoTransaccion, int fecha);
 
 // Analista de Transacciones
 void listarTransacciones(Transaccion &transaccion, string username);
-void EliminarTransaccion(Tansaccion &transaccion, string username);
+void mostrarMontoMaximo(Transaccion &transaccion);
+void eliminarTransaccion(Transaccion &transaccion);
 
 void registrarCliente(Cliente &cliente) {
     string nombre, username, clave, dni;
-	
+    
+    cout << endl << "========================" << endl;
     cout << "Ingrese nombre: ";
     cin >> nombre;
     cout << "Ingrese DNI: ";
@@ -63,6 +65,7 @@ void registrarCliente(Cliente &cliente) {
 			fclose(archivoClientes);
 	
 			cout << "Registro exitoso. Saldo inicial asignado: $" << cliente.saldo << endl;
+			cout << "========================" << endl;
 		}		
 	}
 }
@@ -92,8 +95,9 @@ int main(){
 		cout << "\n1. Registrar nuevo cliente\n";
 		cout << "2. Realizar transaccion (Cliente)\n";
 		cout << "3. Listar transacciones de un cliente\n";
-		cout << "4. Eliminar transaccion\n";
-		cout << "5. Salir\n";
+		cout << "4. Eliminar Transaccion de un cliente\n";
+		cout << "5. Listar transaccion de mayor monto\n";
+		cout << "6. Salir\n";
 		cout << "Seleccione una opcion: ";
 		cin >> opcion;
 		
@@ -111,13 +115,14 @@ int main(){
 				listarTransacciones(transaccion, username);
 				break;
 			}
-			case 4: {string username;
-				cout << "Ingrese username: ";
-				cin >> username;
-				cout << "Ingrese clave: ";
-				cin >> clave;
-				EliminarTransaccion(transaccion,username);
+			case 4:{
+				eliminarTransaccion(transaccion);
+				break;
+			}
 			case 5:
+				mostrarMontoMaximo(transaccion);
+				break;
+			case 6:
 				cout << endl << "========================";
             	cout << endl << "Saliendo del sistema..." << endl;
             	cout << "========================";
@@ -127,7 +132,7 @@ int main(){
 				break;
 		}
 		
-	} while (opcion !=4);
+	} while (opcion !=6);
 	
 	return 0;
 }
