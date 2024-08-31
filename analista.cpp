@@ -29,6 +29,11 @@ bool buscarCliente(Cliente &cliente, string username, string clave);
 void listarTransacciones(Transaccion &transaccion, string username);
 void mostrarMontoMaximo(Transaccion &transaccion);
 
+
+void Listado5(Transaccion &t, Cliente &cliente, string username, string clave);
+void ordenar(Transaccion transaccion[], int cont);
+void DeA5(Transaccion transaccion[],int cont, string username);
+
 void listarTransacciones(Transaccion &transaccion, string username){
     FILE* archivoTransacciones = fopen("Transacciones.txt", "rb");
 	
@@ -95,3 +100,84 @@ void mostrarMontoMaximo(Transaccion &transaccion){
 	
 	fclose(archivoTransacciones);
 }
+
+
+void Listado5(Transaccion &t, Cliente &cliente, string username, string clave)
+{
+    buscarCliente(cliente, username, clave); //verificar existencia
+    
+    FILE* archivoTransacciones = fopen("Transacciones.txt", "rb");
+    
+
+	int contadorTransacciones = 0;
+	while(fread(&t, sizeof(Transaccion), 1, archivoTransacciones)){
+		contadorTransacciones++;
+	}
+	fclose(archivoTransacciones);
+
+	
+	Transaccion transaccion[contadorTransacciones];
+	int cont = 0;
+
+    while(fread(&t, sizeof(Transaccion), 1, archivoTransacciones))
+    {
+        if(t.username == username)
+		{
+			transaccion[cont]=t;
+			cont++;
+		}
+		ordenar(transaccion,cont);
+		DeA5(transaccion,cont,username);
+
+		
+
+    }
+
+}
+
+//ordeno por fecha
+void ordenar(Transaccion transaccion[], int cont)
+{
+	Transaccion t;
+	for(int i=0; i<cont; i++)
+	{
+		for(int j=0; j<cont-1; j++)
+		{
+			if(transaccion[j].fecha<transaccion[j+1].fecha)
+			{
+				t = transaccion[j];
+				transaccion[j]=transaccion[j+1];
+				transaccion[j+1]=t;
+			}
+
+		}
+
+	}
+}
+
+//muestro de a 5
+void DeA5(Transaccion transaccion[],int cont, string username)
+{
+	int desde = 0, pag=1;
+
+	while(desde < cont)
+	{
+		cout<<"Transacciones del cliente "<<username<<endl;
+		cout<<"Pagina "<<pag;
+		for(int i=0; i<desde+5 ; i++)
+		{
+			cout<<i+1<<". ID "<<transaccion[i].id<<"- Fecha "<<transaccion[i].fecha
+			<<"- Monto "<<transaccion[i].monto<<"- Tipo "<<transaccion[i].tipo<<endl;
+		}
+		char rta;
+		cout<<"Desea ver la siguente pagina? (S/N)";
+		cin>>rta;
+		if( rta != 'S' && rta!= 's')
+		{
+			break;
+		}
+		desde+=5;
+		pag++;
+
+	}
+
