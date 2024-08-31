@@ -97,8 +97,9 @@ int main(){
 		cout << "3. Listar transacciones de un cliente\n";
 		cout << "4. Eliminar Transaccion de un cliente\n";
 		cout << "5. Listar transaccion de mayor monto\n";
-		cout << "6. Salir\n";
-		cout << "Seleccione una opcion: ";
+		cout << "6. Ingreso como analista";
+		cout << "7. Salir";
+		cout << "Seleccione una oppcion: "
 		cin >> opcion;
 		
 		switch (opcion){
@@ -122,7 +123,14 @@ int main(){
 			case 5:
 				mostrarMontoMaximo(transaccion);
 				break;
-			case 6:
+                        }
+                        case 6:
+				int contra;
+		              cout << "Ingrese contraseña de analista: "
+				      cin >> contra
+				while(contra != 123456)
+				      {cout << "Contraseña incorrecta";}
+			case 7:
 				cout << endl << "========================";
             	cout << endl << "Saliendo del sistema..." << endl;
             	cout << "========================";
