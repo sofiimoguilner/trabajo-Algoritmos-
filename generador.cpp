@@ -23,55 +23,39 @@ struct Transaccion {
 
 
 // Declaracion de funciones
-void realizarTransaccion(Transaccion &transaccion, Cliente &cliente);
+void realizarTransaccion(Transaccion &transaccion, Cliente &cliente, string username, string clave);
 bool buscarCliente(Cliente &cliente, string username, string clave);
 void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string username, int monto, string tipoTransaccion, int fecha);
 void eliminarTransaccion(Transaccion &transaccion);
 
 
 // Realizacion completa de la transaccion
-void realizarTransaccion(Transaccion &transaccion, Cliente &cliente){
-	string username, clave;
+void realizarTransaccion(Transaccion &transaccion, Cliente &cliente, string username, string clave){
+		
+	// Si el cliente se encuentra en el sistema, se procede con la transaccion
+	int monto, fecha;
+	string tipoTransaccion;
+		
+	cout << "Ingrese monto: ";
+	cin >> monto;
+	cout << "Escriba tipo de transaccion: EGRESO o INGRESO: ";
+	cin >> tipoTransaccion;
+	cout << "Ingrese fecha (aaaammdd): ";
+	cin >> fecha;
 	
-	cout << endl << "========================" << endl;
-	cout << "Ingrese su username: ";
-	cin >> username;
-	
-	cout << "Ingrese su clave: ";
-	cin >> clave;
-	
-	// Buscar si el cliente ingresado está en el sistema
-	//cliente = buscarCliente(cliente, username, clave);
-	if (!buscarCliente(cliente, username, clave)) {
-		cout << "Username o clave incorrectos.\n";
+	if (tipoTransaccion != "EGRESO" && tipoTransaccion != "INGRESO"){
+		cout << "Error: tipo de transaccion incorrecto.\n";
 	} else {
-		cout << "\nBienvenido/a " << cliente.nombre << ". Saldo actual: $" << cliente.saldo << endl;
-		
-		// Si el cliente se encuentra en el sistema, se procede con la transaccion
-		int monto, fecha;
-		string tipoTransaccion;
-		
-		cout << "Ingrese monto: ";
-		cin >> monto;
-		cout << "Escriba tipo de transaccion: EGRESO o INGRESO: ";
-		cin >> tipoTransaccion;
-		cout << "Ingrese fecha (aaaa/mm/dd): ";
-		cin >> fecha;
-		
-		if (tipoTransaccion != "EGRESO" && tipoTransaccion != "INGRESO"){
-			cout << "Error: tipo de transaccion incorrecto.\n";
-		} else {
-			// Funcion para registrar correctamente la transaccion en el sistema
-			registrarTransaccion(transaccion, cliente, username, monto, tipoTransaccion, fecha);
-			cout << "Transaccion realizada con exito. Saldo actual: $" << cliente.saldo << endl;
-			cout << "========================" << endl;
-		}
+		// Funcion para registrar correctamente la transaccion en el sistema
+		registrarTransaccion(transaccion, cliente, username, monto, tipoTransaccion, fecha);
+		cout << "Transaccion realizada con exito. Saldo actual: $" << cliente.saldo << endl;
+		cout << "======================================================" << endl;
 	}
 }
 
 // Funcion para buscar si el cliente ingresado se encuentra en el sistema
 bool buscarCliente(Cliente &cliente, string username, string clave){
-	FILE* archivoClientes = fopen("Clientes.txt", "r");
+	FILE* archivoClientes = fopen("Clientes.txt", "rb");
 	
 	while (fread(&cliente, sizeof(Cliente), 1, archivoClientes)){
 		if ((cliente.username == username) && (cliente.clave == clave)){
@@ -130,11 +114,11 @@ void registrarTransaccion(Transaccion &transaccion, Cliente &cliente, string use
 void eliminarTransaccion(Transaccion &transaccion){
 	// Abrimos dos archivos de Transacciones, una temporal (copia), y otra la original
 	FILE* archivoTransacciones = fopen("Transacciones.txt","rb");
-	FILE* archivoTemporal = fopen("TransaccionesTemp.txt", "wb");
+	FILE* archivoTemporal = fopen("Temporal.txt", "wb");
 	
 	bool encontrado = false;
 	int id;
-	cout << "Ingrese ID de la transaccion a eliminar: ";
+	cout << endl << "Ingrese ID de la transaccion a eliminar: ";
 	cin >> id;
 	
 	while (fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones)){
