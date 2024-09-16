@@ -22,45 +22,116 @@ struct Transaccion {
 };
 
 
-// Generador de Transacciones
-bool buscarCliente(Cliente &cliente, string username, string clave);
-
 // Declaracion de funciones
+void mostrarMontoMaximo(Transaccion &transaccion, Cliente &cliente);
+void enteroACad(int n, char* fecha);
+void ordenarPorFecha(Transaccion &transaccion, int contadorTransacciones);
 void listarTransacciones(Transaccion &transaccion, string username);
-void mostrarMontoMaximo(Transaccion &transaccion);
+void mostrar5(int contadorTransacciones, Transaccion transaccionesOrden[]);
 
 
-void Listado5(Transaccion &t, Cliente &cliente, string username, string clave);
-void ordenar(Transaccion transaccion[], int cont);
-void DeA5(Transaccion transaccion[],int cont, string username);
-
+// Listado de transacciones del cliente ingresado
 void listarTransacciones(Transaccion &transaccion, string username){
-    FILE* archivoTransacciones = fopen("Transacciones.txt", "rb");
+	FILE* archivoTransacciones = fopen ("Transacciones.txt", "rb");
+	FILE* archivoTemp = fopen("Temporal.txt", "ab");
 	
-    bool hayTransacciones = false;
-    cout << "\n- - - Transacciones de " << username << " - - -\n";
-    
-    while (fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones)) {
-        if (transaccion.username == username) {
-            hayTransacciones = true;
-            cout << "ID: " << transaccion.id
-				 << ", Fecha: " << transaccion.fecha 
-				 << ", Monto: $" << transaccion.monto
-				 << ", Tipo: " << transaccion.tipo << endl;
-        }
-    }
+	bool hayTransacciones = false;
+	int contadorTransacciones = 0;
 	
-    if (!hayTransacciones) {
-        cout << "No se encontraron transacciones para este usuario.\n";
-    }
+	// Guardamos todas las transacciones del username ingresado en un archivo temporal ("Temporal.txt")
+	while (fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones)){
+		if(transaccion.username == username){
+			hayTransacciones = true;
+			fwrite(&transaccion, sizeof(Transaccion), 1, archivoTemp);
+			contadorTransacciones ++;
+		}
+	}
+	fclose(archivoTemp);
 	
-    fclose(archivoTransacciones);
+	// Si no hay transacciones, salta error y se vuele al inicio
+	if (!hayTransacciones){
+		cout << "\n- - - No se encontraron transacciones registrados con este usuario - - -\n";
+		return;
+	}
+	
+	// Ordenamos las transacciones, luego las mostramos
+	cout << "\n- - - Transacciones de " << username << " - - -\n\n";
+	ordenarPorFecha(transaccion, contadorTransacciones);
+	
+	remove("Temporal.txt"); // Eliminamos el archivo temporal
+	fclose(archivoTransacciones);
 }
 
-void mostrarMontoMaximo(Transaccion &transaccion){
-	FILE* archivoTransacciones = fopen("Transacciones.txt", "rb");
+// Ordenar las transacciones por fecha (más reciente a más antigua)
+void ordenarPorFecha(Transaccion &transaccion, int contadorTransacciones){
+	FILE* archivoTemp = fopen("Temporal.txt", "rb");
 	
-	Transaccion max[10]; // Array para almacenar el máximo por cada cliente
+	Transaccion transaccionesOrden[contadorTransacciones]; // Creamos array con máximo de transacciones posibles
+	Transaccion temp;
+	int contador = 0;
+	
+	// Guardamos las transacciones del archivo "Temporal" en el array "transaccionesOrden"
+	while (fread(&transaccion, sizeof(Transaccion), 1, archivoTemp)){
+		transaccionesOrden[contador] = transaccion;
+		contador ++;
+	}
+	
+	// Realizamos ordenamiento burbuja en el array "transaccionesOrden"
+	for (int i = 0; i < contadorTransacciones; i++){
+		for (int j = 0; j < contadorTransacciones - i - 1; j++){
+			if (transaccionesOrden[j].fecha < transaccionesOrden[j+1].fecha){
+				temp = transaccionesOrden[j];
+				transaccionesOrden[j] = transaccionesOrden[j+1];
+				transaccionesOrden[j+1] = temp;
+			}
+		}
+	}
+	
+	mostrar5(contadorTransacciones, transaccionesOrden); // Mostramos las transacciones
+	
+	fclose(archivoTemp);
+}
+
+// Mostrar en pantalla las transacciones (previamente ordenadas) de a 5 por pagina
+void mostrar5(int contadorTransacciones, Transaccion transaccionesOrden[]){
+	int pagina = 1;
+	cout << "============Pagina " << pagina << " ============" << endl;
+	for (int i=0; i < contadorTransacciones; i++){
+		// Una vez que se mostraron 5 transacciones, se le pregunta si quiere pasar a la siguiente pagina
+		if (i % 5 == 0 && i!=0){
+			char rta;
+			cout<<"\nDesea ver la siguiente pagina? (S/N): ";
+			cin>>rta;
+			if( rta != 'S' && rta!= 's'){
+				break;
+			} else {
+				pagina++;
+				cout << "\n============Pagina " << pagina << " ============" << endl;
+			}
+		}
+		
+		char fecha[11];
+        enteroACad(transaccionesOrden[i].fecha, fecha);
+        cout << "ID: " << transaccionesOrden[i].id
+			 << ", Fecha: " << fecha 
+			 << ", Monto: $" << transaccionesOrden[i].monto
+			 << ", Tipo: " << transaccionesOrden[i].tipo << endl;
+	}
+}
+
+// Mostrar transaccion de mayor monto de cada cliente
+void mostrarMontoMaximo(Transaccion &transaccion, Cliente &cliente){
+	FILE* archivoTransacciones = fopen("Transacciones.txt", "rb");
+	FILE* archivoClientes = fopen("Clientes.txt", "rb");
+	
+	// Leemos cantidad de Clientes, para saber el máximo de transacciones a mostrar
+	int contadorCliente = 0;
+	while(fread(&cliente, sizeof(Cliente), 1, archivoClientes)){
+		contadorCliente++;
+	}
+	fclose(archivoClientes);
+	
+	Transaccion max[contadorCliente]; // Array para almacenar el monto máximo por cada cliente
 	int contador=0;
 	
 	while(fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones)){
@@ -81,7 +152,7 @@ void mostrarMontoMaximo(Transaccion &transaccion){
 		}
 		
 		// Si no encontramos al cliente, lo agregamos al array
-		if (!usuarioEncontrado && contador < 10){
+		if (!usuarioEncontrado && contador < contadorCliente){
 			max[contador].username = transaccion.username;
 			max[contador].fecha = transaccion.fecha;
 			max[contador].monto = transaccion.monto;
@@ -93,7 +164,11 @@ void mostrarMontoMaximo(Transaccion &transaccion){
 	for (int i=0; i < contador; i++){
 		cout << endl << "========================" << endl;
 		cout << "Cliente: " << max[i].username << endl;
-		cout << "Fecha: " << max[i].fecha << endl;
+		
+		char fecha[11];
+		enteroACad(max[i].fecha, fecha);
+		cout << "Fecha: " << fecha << endl;
+		
 		cout << "Monto: " << max[i].monto << endl;
 		cout << "========================" << endl;
 	}
@@ -101,83 +176,24 @@ void mostrarMontoMaximo(Transaccion &transaccion){
 	fclose(archivoTransacciones);
 }
 
-
-void Listado5(Transaccion &t, Cliente &cliente, string username, string clave)
-{
-    buscarCliente(cliente, username, clave); //verificar existencia
-    
-    FILE* archivoTransacciones = fopen("Transacciones.txt", "rb");
-    
-
-	int contadorTransacciones = 0;
-	while(fread(&t, sizeof(Transaccion), 1, archivoTransacciones)){
-		contadorTransacciones++;
-	}
-	fclose(archivoTransacciones);
-
+// Pasar la fecha entera a cadena. Ayuda para mostrar en pantalla correctamente la fecha
+void enteroACad(int n, char* fecha){
+	int aux = n;
 	
-	Transaccion transaccion[contadorTransacciones];
-	int cont = 0;
-
-    while(fread(&t, sizeof(Transaccion), 1, archivoTransacciones))
-    {
-        if(t.username == username)
-		{
-			transaccion[cont]=t;
-			cont++;
-		}
-		ordenar(transaccion,cont);
-		DeA5(transaccion,cont,username);
-
-		
-
-    }
-
+	int dia = aux % 100;
+	aux = aux / 100;
+	int mes = aux % 100;
+	int anio = aux / 100;
+	
+	fecha[0] = (anio / 1000) + '0';
+    fecha[1] = ((anio / 100) % 10) + '0';
+    fecha[2] = ((anio / 10) % 10) + '0';
+    fecha[3] = (anio % 10) + '0';
+    fecha[4] = '/';
+    fecha[5] = (mes / 10) + '0';
+    fecha[6] = (mes % 10) + '0';
+    fecha[7] = '/';
+    fecha[8] = (dia / 10) + '0';
+    fecha[9] = (dia % 10) + '0';
+    fecha[10] = '\0';
 }
-
-//ordeno por fecha
-void ordenar(Transaccion transaccion[], int cont)
-{
-	Transaccion t;
-	for(int i=0; i<cont; i++)
-	{
-		for(int j=0; j<cont-1; j++)
-		{
-			if(transaccion[j].fecha<transaccion[j+1].fecha)
-			{
-				t = transaccion[j];
-				transaccion[j]=transaccion[j+1];
-				transaccion[j+1]=t;
-			}
-
-		}
-
-	}
-}
-
-//muestro de a 5
-void DeA5(Transaccion transaccion[],int cont, string username)
-{
-	int desde = 0, pag=1;
-
-	while(desde < cont)
-	{
-		cout<<"Transacciones del cliente "<<username<<endl;
-		cout<<"Pagina "<<pag;
-		for(int i=0; i<desde+5 ; i++)
-		{
-			cout<<i+1<<". ID "<<transaccion[i].id<<"- Fecha "<<transaccion[i].fecha
-			<<"- Monto "<<transaccion[i].monto<<"- Tipo "<<transaccion[i].tipo<<endl;
-		}
-		char rta;
-		cout<<"Desea ver la siguente pagina? (S/N)";
-		cin>>rta;
-		if( rta != 'S' && rta!= 's')
-		{
-			break;
-		}
-		desde+=5;
-		pag++;
-
-	}
-
