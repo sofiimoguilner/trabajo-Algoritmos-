@@ -25,11 +25,14 @@ struct Transaccion {
 // Declaracion de funciones
 void mostrarMontoMaximo(Transaccion &transaccion, Cliente &cliente);
 void enteroACad(int n, char* fecha);
+
 void ordenarPorFecha(Transaccion &transaccion, int contadorTransacciones);
 void listarTransacciones(Transaccion &transaccion, string username);
 void mostrar5(int contadorTransacciones, Transaccion transaccionesOrden[]);
+
 void MayorIngreso30dias(Cliente &cliente, Transaccion &transaccion);
 int CalculosUltimaFecha(int fecha);
+
 void listarIngresosYEgresos(Transaccion &transaccion, string username);
 
 // Listado de transacciones del cliente ingresado
