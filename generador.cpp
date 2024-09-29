@@ -26,7 +26,7 @@ struct Transaccion {
 void realizarTransaccion(Transaccion &transaccion, Cliente &cliente, string username, string clave);
 bool buscarCliente(Cliente &cliente, string username, string clave);
 void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string username, int monto, string tipoTransaccion, int fecha);
-void eliminarTransaccion(Transaccion &transaccion);
+void eliminarTransaccion(Transaccion &transaccion, string username);
 
 
 // Realizacion completa de la transaccion
@@ -111,7 +111,7 @@ void registrarTransaccion(Transaccion &transaccion, Cliente &cliente, string use
 }
 
 // Funcion para eliminar una transaccion por ID
-void eliminarTransaccion(Transaccion &transaccion){
+void eliminarTransaccion(Transaccion &transaccion, string username){
 	// Abrimos dos archivos de Transacciones, una temporal (copia), y otra la original
 	FILE* archivoTransacciones = fopen("Transacciones.txt","rb");
 	FILE* archivoTemporal = fopen("Temporal.txt", "wb");
@@ -121,6 +121,7 @@ void eliminarTransaccion(Transaccion &transaccion){
 	cout << endl << "Ingrese ID de la transaccion a eliminar: ";
 	cin >> id;
 	
+	
 	while (fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones)){
 		// Si no se encuentra el ID, se van copiando las transacciones en una copia
 		if (transaccion.id != id){
@@ -128,6 +129,10 @@ void eliminarTransaccion(Transaccion &transaccion){
 		} else {
 			// Una vez encontrado se cambia la variable "encontrado" a true. Pero sigue copiando las transacciones
 			encontrado = true;
+			if (transaccion.username != username){
+				cout << "El ID de la transaccion ingresada no pertenece al username ingresado" << endl;
+				return;
+			}
 		}
 	}
 	
@@ -141,7 +146,7 @@ void eliminarTransaccion(Transaccion &transaccion){
 		cout << "Transaccion eliminada exitosamente." << endl;
 	} else {
 		// Si no se encuentra el ID, se elimina la copia de las transacciones, y se mantiene el archivo original
-		remove("Temporal.txt");
+		remove("TransaccionesTemp.txt");
 		cout << "Transaccion con ID " << id << " no encontrada. " << endl;
 	}
 }
