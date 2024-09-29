@@ -36,7 +36,7 @@ void listarIngresosYEgresos(Transaccion &transaccion, string username);
 // Listado de transacciones del cliente ingresado
 void listarTransacciones(Transaccion &transaccion, string username){
 	FILE* archivoTransacciones = fopen ("Transacciones.txt", "rb");
-	FILE* archivoTemp = fopen("Temporal.txt", "ab");
+	FILE* archivoTemp = fopen("Temporal.txt", "wb");
 	
 	bool hayTransacciones = false;
 	int contadorTransacciones = 0;
