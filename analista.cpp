@@ -249,7 +249,7 @@ void MayorIngreso30dias(Transaccion &transaccion)
 			{
 				if(rango[i].monto < rango[i+1].monto)
 				{
-					MontoMaximo = rango;
+					MontoMaximo = rango[i+1];
 				}
 			}
 		}
