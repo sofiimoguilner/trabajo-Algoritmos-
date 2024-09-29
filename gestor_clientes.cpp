@@ -35,6 +35,8 @@ void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string us
 void mostrarMontoMaximo(Transaccion &transaccion, Cliente &cliente);
 void eliminarTransaccion(Transaccion &transaccion);
 void listarTransacciones(Transaccion &transaccion, string username);
+void MayorIngreso30dias(Transaccion &transaccion);
+int CalculosUltimaFecha(int fecha);
 
 
 void registrarCliente(Cliente &cliente) {
@@ -150,6 +152,7 @@ int main(){
 							break;
 						case 4:
 							// Funcion mostrarIngresos30dias
+							MayorIngreso30dias(transaccion);
 							break;
 						case 5:
 							cout << endl << "========================";
