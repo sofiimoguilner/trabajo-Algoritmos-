@@ -63,7 +63,7 @@ void registrarCliente(Cliente &cliente) {
 		cliente.clave = clave;	
 		cliente.saldo = 10000;
 	
-		FILE* archivoClientes = fopen("Clientes.txt", "a");
+		FILE* archivoClientes = fopen("Clientes.txt", "ab");
 		if (archivoClientes != NULL){
 			fwrite(&cliente, sizeof(Cliente), 1, archivoClientes);
 			fclose(archivoClientes);
