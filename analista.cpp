@@ -28,6 +28,8 @@ void enteroACad(int n, char* fecha);
 void ordenarPorFecha(Transaccion &transaccion, int contadorTransacciones);
 void listarTransacciones(Transaccion &transaccion, string username);
 void mostrar5(int contadorTransacciones, Transaccion transaccionesOrden[]);
+void MayorIngreso30dias(Transaccion &transaccion);
+int CalculosUltimaFecha(int fecha);
 
 
 // Listado de transacciones del cliente ingresado
@@ -197,3 +199,97 @@ void enteroACad(int n, char* fecha){
     fecha[9] = (dia % 10) + '0';
     fecha[10] = '\0';
 }
+// funcion de mayor ingreso en los ultimos 30 dias 
+
+void MayorIngreso30dias(Transaccion &transaccion)
+{
+	FILE* archivoTransacciones = fopen ("Transacciones.txt", "rb");
+	FILE* archivoTemp = fopen("Temporal.txt", "rb");
+
+	if (!archivoTransacciones) {
+        cout << "No se pudo abrir el archivo de transacciones." << endl;
+    }
+
+	
+	int fechaHoy, fechaUltima, cont=0;
+	Transaccion rango[cont]; //array de transacciones dentro del rango de fecha
+	Transaccion MontoMaximo;
+
+	cout<<"fecha del dia de hoy (con formato aaaa/mm/dd): ";
+	cin>>fechaHoy;
+
+	fechaUltima = CalculosUltimaFecha(fechaHoy);
+
+    //comnpara las transacciones y si estan en el rango de la fecha se escriben en el archivo temporal
+	while(fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones))
+	{
+		if(transaccion.fecha <= fechaHoy && transaccion.fecha >= fechaUltima)
+		{
+			cont++;
+			fwrite(&transaccion, sizeof(Transaccion), 1, archivoTemp);
+		}
+	}
+
+    //se usa el array de transacciones para poder comprar los montos dentro de el archivo temporal
+	while(fread(&transaccion, sizeof(Transaccion), 1, archivoTemp))
+	{
+		rango[cont] = transaccion;
+
+		for(int i=0; i<cont; i++)
+		{
+			if(rango[i].username == rango[i+1].username)
+			{
+				rango[i].monto += rango[i+1].monto;
+			}
+		}
+
+		for(int i=0; i<cont; i++)
+		{
+			if(rango[i].username != rango[i+1].username)
+			{
+				if(rango[i].monto < rango[i+1].monto)
+				{
+					MontoMaximo = rango;
+				}
+			}
+		}
+	}
+
+	cout<<"Cliente con monto maximo en los ultimos 30 dias: "<<MontoMaximo.username
+	<<"- Monto: "<<MontoMaximo.monto<<endl;
+
+	
+
+};
+
+//funcion para calcular la ultima fecha despues de la fecha actual que se ingresa
+
+int CalculosUltimaFecha(int fecha)
+{
+	int dia, mes, anio, diaultimo,mesultimo, anioultimo, aux, fechaFinal;
+
+	anio = fecha/10000;
+	mes = (fecha - anio*10000)/100;
+	dia = fecha -anio*10000 -mes*100;
+
+	diaultimo = dia - 30; 
+	mesultimo = mes;
+	anioultimo = anio;
+
+	if(diaultimo <= 0)
+	{
+		aux = 30 + diaultimo; //queda el positivo pq el numero diaultimo seria negativo
+		diaultimo = aux;
+		mesultimo = mes - 1;
+		
+		if(mesultimo == 0)
+		{
+			mesultimo = 12;
+			anioultimo = anio - 1;
+		}
+	}
+
+	fechaFinal = anioultimo * 10000 + mesultimo * 100 + diaultimo;
+
+	return fechaFinal;
+};
