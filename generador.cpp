@@ -26,6 +26,7 @@ struct Transaccion {
 void realizarTransaccion(Transaccion &transaccion, Cliente &cliente, string username, string clave);
 bool buscarCliente(Cliente &cliente, string username, string clave);
 void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string username, int monto, string tipoTransaccion, int fecha);
+
 void eliminarTransaccion(Transaccion &transaccion, string username);
 
 
@@ -114,7 +115,7 @@ void registrarTransaccion(Transaccion &transaccion, Cliente &cliente, string use
 void eliminarTransaccion(Transaccion &transaccion, string username){
 	// Abrimos dos archivos de Transacciones, una temporal (copia), y otra la original
 	FILE* archivoTransacciones = fopen("Transacciones.txt","rb");
-	FILE* archivoTemporal = fopen("Temporal.txt", "wb");
+	FILE* archivoTemporal = fopen("Temporal.txt", "ab");
 	
 	bool encontrado = false;
 	int id;
@@ -127,12 +128,17 @@ void eliminarTransaccion(Transaccion &transaccion, string username){
 		if (transaccion.id != id){
 			fwrite(&transaccion, sizeof(Transaccion), 1 , archivoTemporal);
 		} else {
-			// Una vez encontrado se cambia la variable "encontrado" a true. Pero sigue copiando las transacciones
-			encontrado = true;
+			// Verificamos que el ID pertenece al username ingresado
 			if (transaccion.username != username){
 				cout << "El ID de la transaccion ingresada no pertenece al username ingresado" << endl;
+				fclose(archivoTemporal);
+				fclose(archivoTransacciones);
+				remove("Temporal.txt");
 				return;
 			}
+			
+			// Una vez encontrado se cambia la variable "encontrado" a true. Pero sigue copiando las transacciones
+			encontrado = true;
 		}
 	}
 	
@@ -146,7 +152,7 @@ void eliminarTransaccion(Transaccion &transaccion, string username){
 		cout << "Transaccion eliminada exitosamente." << endl;
 	} else {
 		// Si no se encuentra el ID, se elimina la copia de las transacciones, y se mantiene el archivo original
-		remove("TransaccionesTemp.txt");
+		remove("Temporal.txt");
 		cout << "Transaccion con ID " << id << " no encontrada. " << endl;
 	}
 }
