@@ -30,6 +30,7 @@ void listarTransacciones(Transaccion &transaccion, string username);
 void mostrar5(int contadorTransacciones, Transaccion transaccionesOrden[]);
 void MayorIngreso30dias(Transaccion &transaccion);
 int CalculosUltimaFecha(int fecha);
+void listarIngresosYEgresos(Transaccion &transaccion, string username);
 
 
 // Listado de transacciones del cliente ingresado
@@ -199,12 +200,12 @@ void enteroACad(int n, char* fecha){
     fecha[9] = (dia % 10) + '0';
     fecha[10] = '\0';
 }
-// funcion de mayor ingreso en los ultimos 30 dias 
 
+// funcion de mayor ingreso en los ultimos 30 dias 
 void MayorIngreso30dias(Transaccion &transaccion)
 {
 	FILE* archivoTransacciones = fopen ("Transacciones.txt", "rb");
-	FILE* archivoTemp = fopen("Temporal.txt", "rb");
+	FILE* archivoTemp = fopen("Temporal.txt", "wb");
 
 	if (!archivoTransacciones) {
         cout << "No se pudo abrir el archivo de transacciones." << endl;
@@ -220,7 +221,7 @@ void MayorIngreso30dias(Transaccion &transaccion)
 
 	fechaUltima = CalculosUltimaFecha(fechaHoy);
 
-    //comnpara las transacciones y si estan en el rango de la fecha se escriben en el archivo temporal
+    //compara las transacciones y si estan en el rango de la fecha se escriben en el archivo temporal
 	while(fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones))
 	{
 		if(transaccion.fecha <= fechaHoy && transaccion.fecha >= fechaUltima)
@@ -230,7 +231,7 @@ void MayorIngreso30dias(Transaccion &transaccion)
 		}
 	}
 
-    //se usa el array de transacciones para poder comprar los montos dentro de el archivo temporal
+    //se usa el array de transacciones para poder comparar los montos dentro de el archivo temporal
 	while(fread(&transaccion, sizeof(Transaccion), 1, archivoTemp))
 	{
 		rango[cont] = transaccion;
@@ -256,14 +257,10 @@ void MayorIngreso30dias(Transaccion &transaccion)
 	}
 
 	cout<<"Cliente con monto maximo en los ultimos 30 dias: "<<MontoMaximo.username
-	<<"- Monto: "<<MontoMaximo.monto<<endl;
-
-	
-
-};
+	<<" - Monto: "<<MontoMaximo.monto<<cont<<endl;
+}
 
 //funcion para calcular la ultima fecha despues de la fecha actual que se ingresa
-
 int CalculosUltimaFecha(int fecha)
 {
 	int dia, mes, anio, diaultimo,mesultimo, anioultimo, aux, fechaFinal;
@@ -292,4 +289,30 @@ int CalculosUltimaFecha(int fecha)
 	fechaFinal = anioultimo * 10000 + mesultimo * 100 + diaultimo;
 
 	return fechaFinal;
-};
+}
+
+void listarIngresosYEgresos(Transaccion &transaccion, string username) {
+    FILE* archivoTransacciones = fopen("Transacciones.txt", "rb");
+
+    int ingresosPorMes[12] = {0}; // Contadores para ingresos
+    int egresosPorMes[12] = {0};  // Contadores para egresos
+
+    while (fread(&transaccion, sizeof(Transaccion), 1, archivoTransacciones)) {
+        if (transaccion.username == username) {
+            int anio = transaccion.fecha / 10000;
+            int mes = (transaccion.fecha % 10000) / 100;
+
+            if (transaccion.tipo == "INGRESO") {
+                ingresosPorMes[mes - 1]++;
+            } else {
+                egresosPorMes[mes - 1]++;
+            }
+        }
+    }
+
+    fclose(archivoTransacciones);
+
+    for (int i = 0; i < 12; i++) {
+        cout << "Mes " << i + 1 << ": Ingresos: " << ingresosPorMes[i] << " Egresos: " << egresosPorMes[i] << endl;
+    }
+}
