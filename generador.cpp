@@ -137,11 +137,11 @@ void eliminarTransaccion(Transaccion &transaccion){
 	if (encontrado){
 		// Si se encuentra el ID se elimina el archivo original de Transacciones, y se archiva la copia como la actual original
 		remove("Transacciones.txt");
-		rename("TransaccionesTemp.txt", "Transacciones.txt");
+		rename("Temporal.txt", "Transacciones.txt");
 		cout << "Transaccion eliminada exitosamente." << endl;
 	} else {
 		// Si no se encuentra el ID, se elimina la copia de las transacciones, y se mantiene el archivo original
-		remove("TransaccionesTemp.txt");
+		remove("Temporal.txt");
 		cout << "Transaccion con ID " << id << " no encontrada. " << endl;
 	}
 }
