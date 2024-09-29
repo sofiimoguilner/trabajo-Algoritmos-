@@ -38,6 +38,7 @@ void listarTransacciones(Transaccion &transaccion, string username);
 void MayorIngreso30dias(Cliente &cliente, Transaccion &transaccion);
 void listarIngresosYEgresos(Transaccion &transaccion, string username);
 
+
 void registrarCliente(Cliente &cliente) {
     string nombre, username, clave, dni;
     
@@ -83,11 +84,10 @@ bool existeCliente(Cliente &cliente, string dni, string username){
 		if(cliente.dni == dni || cliente.username == username){
 			fclose(archivoClientes);
 			return true;
-		} else {
-			fclose(archivoClientes);
-			return false;
-		}	
+		} 	
 	}
+	
+	fclose(archivoClientes);
 	return false;
 }
 
