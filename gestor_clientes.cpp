@@ -33,12 +33,10 @@ void registrarTransaccion (Transaccion &transaccion, Cliente &cliente, string us
 
 // Analista de Transacciones
 void mostrarMontoMaximo(Transaccion &transaccion, Cliente &cliente);
-void eliminarTransaccion(Transaccion &transaccion);
+void eliminarTransaccion(Transaccion &transaccion, string username);
 void listarTransacciones(Transaccion &transaccion, string username);
-void MayorIngreso30dias(Transaccion &transaccion);
-int CalculosUltimaFecha(int fecha);
+void MayorIngreso30dias(Cliente &cliente, Transaccion &transaccion);
 void listarIngresosYEgresos(Transaccion &transaccion, string username);
-
 
 void registrarCliente(Cliente &cliente) {
     string nombre, username, clave, dni;
@@ -56,7 +54,10 @@ void registrarCliente(Cliente &cliente) {
     if (existeCliente(cliente, dni, username)){
     	cout<<"Error: Ya existe un cliente con ese DNI o username.\n";
 		cout << "====================================================" << endl;
-	} else {
+		return;
+	} 
+	
+	if (!existeCliente(cliente, dni, username)){
 		
 		cliente.nombre = nombre;
 		cliente.dni = dni;
@@ -78,16 +79,14 @@ void registrarCliente(Cliente &cliente) {
 bool existeCliente(Cliente &cliente, string dni, string username){
 	FILE* archivoClientes = fopen("Clientes.txt", "rb");
 	
-	if(archivoClientes !=NULL){
-		while(fread(&cliente, sizeof(Cliente), 1, archivoClientes)){
-			if(cliente.dni == dni || cliente.username == username){
-				fclose(archivoClientes);
-				return true;
-			} else {
-				fclose(archivoClientes);
-				return false;
-			}	
-		}
+	while(fread(&cliente, sizeof(Cliente), 1, archivoClientes)){
+		if(cliente.dni == dni || cliente.username == username){
+			fclose(archivoClientes);
+			return true;
+		} else {
+			fclose(archivoClientes);
+			return false;
+		}	
 	}
 	return false;
 }
@@ -145,7 +144,7 @@ int main(){
 							listarTransacciones(transaccion, username);
 							break;
 						}
-						case 2:{ // Funcion listarIngresosYEgresos
+						case 2:{
 							string username;
 							cout << "Ingrese username: ";
 							cin >> username;
@@ -156,8 +155,7 @@ int main(){
 							mostrarMontoMaximo(transaccion, cliente);
 							break;
 						case 4:
-							// Funcion mostrarIngresos30dias
-							MayorIngreso30dias(transaccion);
+							MayorIngreso30dias(cliente, transaccion);
 							break;
 						case 5:
 							cout << endl << "========================";
@@ -199,7 +197,7 @@ int main(){
 								break;
 							}
 							case 2:{
-								eliminarTransaccion(transaccion);
+								eliminarTransaccion(transaccion, username);
 								break;
 							}
 							case 3:
